@@ -40,6 +40,51 @@ describe 'dhcp::host', type: :define do
     expect(content.split("\n")).to match_array(expected_lines)
   end
 
+  context 'with a DNS name as the fixed address' do
+    %w[server1 server1.example.test].each do |address|
+      context "when ip is #{address}" do
+        let(:params) { default_params.merge('ip' => address) }
+
+        it 'compiles and renders an unquoted fixed-address statement' do
+          is_expected.to compile
+          is_expected.to contain_concat__fragment("dhcp_host_#{title}").
+            with_content(%r{^  fixed-address       #{Regexp.escape(address)};$})
+        end
+      end
+    end
+  end
+
+  context 'without a fixed address' do
+    let(:params) { default_params.reject { |name, _value| name == 'ip' } }
+
+    it 'compiles and omits the fixed-address statement' do
+      is_expected.to compile
+      is_expected.to contain_concat__fragment("dhcp_host_#{title}").
+        without_content(%r{fixed-address})
+    end
+  end
+
+  context 'with an invalid fixed address' do
+    [
+      '2001:db8::1',
+      '192.0.2.1/24',
+      '999.999.999.999',
+      '-server.example.test',
+      'server-.example.test',
+      'server name.example.test',
+      'server.example.test,other.example.test',
+      'server.example.test;',
+      'server.example.test"',
+      "server.example.test\nnext-server 192.0.2.1"
+    ].each do |address|
+      context "when ip is #{address.inspect}" do
+        let(:params) { default_params.merge('ip' => address) }
+
+        it { is_expected.not_to compile }
+      end
+    end
+  end
+
   context 'when options defined' do
     let(:params) do
       default_params.merge(

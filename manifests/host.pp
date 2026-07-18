@@ -1,7 +1,7 @@
 # @summary Manage a DHCP host
 #
 # @param ip
-#    The ip address of the DHCP host.
+#    The IPv4 address or DNS hostname of the DHCP host.
 #
 # @param mac
 #    The MAC address.
@@ -45,7 +45,7 @@
 #    An array with statements to go into the hook on expiry.
 define dhcp::host (
   Dhcp::Mac $mac,
-  Optional[Stdlib::IP::Address] $ip     = undef,
+  Optional[Dhcp::FixedAddress] $ip      = undef,
   String $ddns_hostname                 = $name,
   Hash $options                         = {},
   Optional[String[1]] $comment          = undef,
