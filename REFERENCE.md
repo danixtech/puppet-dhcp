@@ -27,6 +27,7 @@
 
 ### Data types
 
+* [`Dhcp::FixedAddress`](#Dhcp--FixedAddress): A DHCPv4 fixed-address value: an IPv4 address or a DNS hostname.
 * [`Dhcp::Mac`](#Dhcp--Mac)
 * [`Dhcp::Syslogfacility`](#Dhcp--Syslogfacility)
 
@@ -784,9 +785,9 @@ The following parameters are available in the `dhcp::host` defined type:
 
 ##### <a name="-dhcp--host--ip"></a>`ip`
 
-Data type: `Optional[Stdlib::IP::Address]`
+Data type: `Optional[Dhcp::FixedAddress]`
 
-The ip address of the DHCP host.
+The IPv4 address or DNS hostname of the DHCP host.
 
 Default value: `undef`
 
@@ -940,6 +941,7 @@ The following parameters are available in the `dhcp::pool` defined type:
 * [`mtu`](#-dhcp--pool--mtu)
 * [`domain_name`](#-dhcp--pool--domain_name)
 * [`ignore_unknown`](#-dhcp--pool--ignore_unknown)
+* [`max_lease_time`](#-dhcp--pool--max_lease_time)
 * [`on_commit`](#-dhcp--pool--on_commit)
 * [`on_release`](#-dhcp--pool--on_release)
 * [`on_expiry`](#-dhcp--pool--on_expiry)
@@ -1064,6 +1066,14 @@ Data type: `Any`
 
 Set to true to disable leases for clients not
 explicitly defined by `dhcp::host`
+
+Default value: `undef`
+
+##### <a name="-dhcp--pool--max_lease_time"></a>`max_lease_time`
+
+Data type: `Optional[Integer[-1]]`
+
+Optional maximum lease time for this pool. Use `-1` for an infinite lease.
 
 Default value: `undef`
 
@@ -1281,6 +1291,15 @@ Default value: `undef`
 
 ## Data types
 
+### <a name="Dhcp--FixedAddress"></a>`Dhcp::FixedAddress`
+
+A DHCPv4 fixed-address value: an IPv4 address or a DNS hostname.
+
+DNS names are rendered as unquoted ISC DHCP configuration tokens, so this
+type deliberately excludes whitespace and configuration punctuation.
+
+Alias of `Variant[Stdlib::IP::Address::V4::Nosubnet, Pattern[/\A(?=.{1,253}(?:\.)?\z)(?![0-9]+(?:\.[0-9]+){3}\.?\z)[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*\.?\z/]]`
+
 ### <a name="Dhcp--Mac"></a>`Dhcp::Mac`
 
 The Dhcp::Mac data type.
@@ -1292,4 +1311,3 @@ Alias of `Pattern[/^[0-9A-Fa-f]{1,2}(:[0-9A-Fa-f]{1,2}){5}$/]`
 The Dhcp::Syslogfacility data type.
 
 Alias of `Enum['user', 'mail', 'daemon', 'auth', 'syslog', 'lpr', 'news', 'uucp', 'cron', 'authpriv', 'ftp', 'ntp', 'security', 'console', 'solaris-cron', 'local0', 'local1', 'local2', 'local3', 'local4', 'local5', 'local6', 'local7']`
-

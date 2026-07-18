@@ -53,10 +53,11 @@ May be passed as a hash into the DHCP class.
 
 ```puppet
 dhcp::pool{ 'ops.dc1.example.net':
-  network => '10.0.1.0',
-  mask    => '255.255.255.0',
-  range   => ['10.0.1.10 10.0.1.100', '10.0.1.200 10.0.1.250' ],
-  gateway => '10.0.1.1',
+  network        => '10.0.1.0',
+  mask           => '255.255.255.0',
+  range          => ['10.0.1.10 10.0.1.100', '10.0.1.200 10.0.1.250' ],
+  gateway        => '10.0.1.1',
+  max_lease_time => 3600,
 }
 ```
 
@@ -76,6 +77,11 @@ dhcp::ignoredsubnet{ 'eth0':
 ### dhcp::host
 
 Create host reservations.
+
+The `ip` parameter accepts an IPv4 address, a short DNS hostname, or a fully
+qualified DNS name. DNS names are emitted unquoted in the ISC DHCP
+`fixed-address` statement and are resolved by the DHCP server. IPv6 addresses
+are not accepted by this DHCPv4 parameter.
 
 May be passed as a hash into the DHCP class.
 ```puppet
