@@ -2,12 +2,15 @@
 # <%= @name %> <%= @network %> <%= @mask %>
 #################################
 subnet <%= @network %> netmask <%= @mask %> {
-<% if @range or @failover -%>
+<% if @range or @failover or !@max_lease_time.nil? -%>
   pool
   {
 <% if @failover -%>
     failover peer "<%= @failover %>";
     deny dynamic bootp clients;
+<% end -%>
+<% unless @max_lease_time.nil? -%>
+    max-lease-time <%= @max_lease_time %>;
 <% end -%>
 <% if @ignore_unknown == true -%>
     ignore unknown-clients ;
@@ -81,4 +84,3 @@ subnet <%= @network %> netmask <%= @mask %> {
   }
 <% end -%>
 }
-

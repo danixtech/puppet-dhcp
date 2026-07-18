@@ -53,6 +53,9 @@
 #   Set to true to disable leases for clients not
 #   explicitly defined by `dhcp::host`
 #
+# @param max_lease_time
+#   Optional maximum lease time for this pool. Use `-1` for an infinite lease.
+#
 # @param on_commit
 #   Set of statements to execute when providing a lease
 #
@@ -78,6 +81,7 @@ define dhcp::pool (
   Optional[Integer] $mtu                    = undef,
   Optional[String[1]] $domain_name          = undef,
   $ignore_unknown                           = undef,
+  Optional[Integer[-1]] $max_lease_time      = undef,
   Array[String[1]] $on_commit               = [],
   Array[String[1]] $on_release              = [],
   Array[String[1]] $on_expiry               = [],
