@@ -4,15 +4,49 @@
 
 name: CI
 
-on: pull_request
+# yamllint disable-line rule:truthy
+on:
+  pull_request: {}
+  push:
+    branches:
+      - main
+      - modernization
+  workflow_dispatch: {}
 
 concurrency:
   group: ${{ github.ref_name }}
   cancel-in-progress: true
 
 jobs:
-  puppet:
-    name: Puppet
-    uses: voxpupuli/gha-puppet/.github/workflows/beaker.yml@v2
-    with:
-      pidfile_workaround: 'false'
+  unit:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Puppet 8
+            ruby: '3.3'
+            puppet_gem_version: '~> 8.0'
+            openvox_gem_version: ''
+          - name: OpenVox 8
+            ruby: '3.3'
+            puppet_gem_version: ''
+            openvox_gem_version: '~> 8.0'
+    env:
+      PUPPET_GEM_VERSION: ${{ matrix.puppet_gem_version }}
+      OPENVOX_GEM_VERSION: ${{ matrix.openvox_gem_version }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Validate metadata, syntax, and style
+        run: bundle exec rake validate
+      - name: Run unit and rendered-configuration tests
+        run: bundle exec rake spec
