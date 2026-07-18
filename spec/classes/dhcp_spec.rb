@@ -190,6 +190,37 @@ describe 'dhcp', type: :class do
         is_expected.to contain_concat__fragment('dhcp_host_server1')
         is_expected.to contain_concat__fragment('dhcp_class_vendor-class-identifier')
       end
+
+      context 'with production-shaped DNS host and pool lease data' do
+        let(:params) do
+          default_params.merge(
+            'interfaces' => ['eth0'],
+            'hosts' => {
+              'server1' => {
+                'comment' => 'DNS-backed reservation',
+                'mac' => '00:50:56:00:00:01',
+                'ip' => 'server1.example.test'
+              }
+            },
+            'pools' => {
+              'client-network' => {
+                'network' => '10.0.1.0',
+                'mask' => '255.255.255.0',
+                'range' => ['10.0.1.10 10.0.1.100'],
+                'max_lease_time' => 3600
+              }
+            }
+          )
+        end
+
+        it 'compiles the hash-created host and pool resources' do
+          is_expected.to compile.with_all_deps
+          is_expected.to contain_concat__fragment('dhcp_host_server1').
+            with_content(%r{^  fixed-address       server1\.example\.test;$})
+          is_expected.to contain_concat__fragment('dhcp_pool_client-network').
+            with_content(%r{max-lease-time 3600;})
+        end
+      end
     end
 
     context 'ntp' do
